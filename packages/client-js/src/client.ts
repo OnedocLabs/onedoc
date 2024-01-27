@@ -30,6 +30,13 @@ export class Onedoc {
 
   async render(document: DocumentInput) {
     // Fetch the /api/docs/initiate API endpoint
-    const information = await fetch(this.buildUrl("/docs/initiate"), {});
+    const information = await fetch(this.buildUrl("/docs/initiate"), {
+      headers: {
+        "X-Api-Key": this.apiKey,
+      },
+    });
+
+    // Show the response body
+    console.log(await information.json());
   }
 }
