@@ -134,7 +134,7 @@ export class Onedoc {
     signedURLs.forEach( async (e) => {
       
         const asset = document.assets?.find( item => {
-          console.log(item)
+
           return item.path == e.path}
           );
 
@@ -145,7 +145,11 @@ export class Onedoc {
         }else if (e.path == "/index.html") {
           
           let htmlBuilder = new HtmlBuilder("Onedoc");
-          const html = htmlBuilder.build(document.html, document.assets?.filter(asset => asset.content.includes('.css')).map(asset => asset.path))
+
+          const styleSheets = document.assets?.filter(asset => asset.path.includes('.css')).map(asset => asset.path);
+
+          const html:string = htmlBuilder.build(document.html, styleSheets);
+
           await uploadToSignedUrl( e.signedUrl, e.path, e.token, html);
   
         }
@@ -155,5 +159,3 @@ export class Onedoc {
     return response;
   }
 }
-
-

@@ -24,16 +24,15 @@ export class HtmlBuilder {
     build(react:string, styleSheets?:string[]){
 
         if (styleSheets){
+            
             styleSheets.forEach((path) =>{
-                this.start+= `<link rel ="stylesheet" href=${path}>`
+                this.start+= `<link rel = "stylesheet" href=${path} />`
             })
         }
-
+        
         this.middle += react;
 
         return this.start+this.middle+this.end;
     }
 
-
-  
 }
