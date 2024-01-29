@@ -135,8 +135,8 @@ export class Onedoc {
       
         const asset = document.assets?.find( item => {
 
-          return item.path == e.path}
-          );
+          return item.path == e.path;
+        });
 
         if (asset?.content){
 

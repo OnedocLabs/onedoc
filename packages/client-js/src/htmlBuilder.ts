@@ -29,7 +29,7 @@ export class HtmlBuilder {
                 this.start+= `<link rel = "stylesheet" href=${path} />`
             })
         }
-        
+
         this.middle += react;
 
         return this.start+this.middle+this.end;
