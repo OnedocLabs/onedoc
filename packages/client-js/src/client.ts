@@ -116,6 +116,7 @@ export class Onedoc {
   async render(document: DocumentInput) {
     // Fetch the /api/docs/initiate API endpoint
     const information = await fetch(this.buildUrl("/api/docs/initiate"), {
+      method:"POST",
       headers: {
         "X-Api-Key": this.apiKey,
         "Content-Type": "application/json" // Set Content-Type if you are sending JSON data
@@ -130,7 +131,7 @@ export class Onedoc {
 
     const signedURLs = response.signedUrls;
 
-    signedURLs.forEach( async (e)=>{
+    signedURLs.forEach( async (e) => {
       
         const asset = document.assets?.find( item => {
           console.log(item)
