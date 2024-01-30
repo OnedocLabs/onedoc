@@ -1,0 +1,27 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+      - run: npm install
+        working-directory: ./packages/client-js
+      - run: npm run build
+        working-directory: ./packages/client-js
+      - run: npm version patch -m "Bump version to %s [skip ci]"
+        working-directory: ./packages/client-js
+      - run: npm publish --access public
+        working-directory: ./packages/client-js
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - uses: stefanzweifel/git-auto-commit-action@v5
