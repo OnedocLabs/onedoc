@@ -15,6 +15,7 @@ jobs:
           node-version: 18
           cache: npm
           cache-dependency-path: ./packages/client-js/package-lock.json
+          registry-url: "https://registry.npmjs.org"
       - run: npm install
         working-directory: ./packages/client-js
       - run: npm run build
