@@ -1,5 +1,5 @@
 import { HtmlBuilder } from "./htmlBuilder";
-export interface PathString{
+export interface PathString {
   path: string;
   content: string;
 }
@@ -8,7 +8,7 @@ export interface PathString{
 //   content: Buffer;
 // }
 
-export interface ExternalLink{
+export interface ExternalLink {
   href: string;
 }
 export interface DocumentInput {
@@ -20,19 +20,16 @@ export interface DocumentInput {
     keywords?: string[];
     date?: string;
   };
-  assets?: (
-    | PathString
-    //| PathBuffer
-    //| ExternalLink
-    
-  )[];
+  assets?: PathString[];
+  //| PathBuffer
+  //| ExternalLink
 }
 
 const DEFAULT_FILE_OPTIONS: any = {
-  cacheControl: '3600',
-  contentType: 'text/plain;charset=UTF-8',
+  cacheControl: "3600",
+  contentType: "text/plain;charset=UTF-8",
   upsert: false,
-}
+};
 
 type FileBody =
   | ArrayBuffer
@@ -42,68 +39,67 @@ type FileBody =
   | FormData
   | ReadableStream<Uint8Array>
   | URLSearchParams
-  | string
+  | string;
 
 //https://www.npmjs.com/package/@supabase/storage-js?activeTab=code
 async function uploadToSignedUrl(
-    urlToFS : string,
-    path: string,
-    token: string,
-    fileBody: FileBody,
-    fileOptions?: any
-  ) {
+  urlToFS: string,
+  path: string,
+  token: string,
+  fileBody: FileBody,
+  fileOptions?: any
+) {
+  const url = new URL(urlToFS + `/object/upload/sign/${path}`);
+  url.searchParams.set("token", token);
 
-    const url = new URL(urlToFS + `/object/upload/sign/${path}`)
-    url.searchParams.set('token', token)
+  try {
+    let body;
+    const options = { upsert: DEFAULT_FILE_OPTIONS.upsert, ...fileOptions };
+    const headers: Record<string, string> = {
+      ...{ "x-upsert": String(options.upsert as boolean) },
+    };
 
-
-    try {
-      let body
-      const options = { upsert: DEFAULT_FILE_OPTIONS.upsert, ...fileOptions }
-      const headers: Record<string, string> = {
-        ...{ 'x-upsert': String(options.upsert as boolean) },
-      }
-
-      if (typeof Blob !== 'undefined' && fileBody instanceof Blob) {
-        body = new FormData()
-        body.append('cacheControl', options.cacheControl as string)
-        body.append('', fileBody)
-      } else if (typeof FormData !== 'undefined' && fileBody instanceof FormData) {
-        body = fileBody
-        body.append('cacheControl', options.cacheControl as string)
-      } else {
-        body = fileBody
-        headers['cache-control'] = `max-age=${options.cacheControl}`
-        headers['content-type'] = options.contentType as string
-      }
-
-      const res = await fetch(url.toString(), {
-        method: 'PUT',
-        body: body as BodyInit,
-        headers,
-      })
-
-      const data = await res.json()
-
-      if (res.ok) {
-        return {
-          data: { path: path, fullPath: data.Key },
-          error: null,
-        }
-      } else {
-        const error = data
-        return { data: null, error }
-      }
-    } catch (error) {
-     
-
-      throw error
+    if (typeof Blob !== "undefined" && fileBody instanceof Blob) {
+      body = new FormData();
+      body.append("cacheControl", options.cacheControl as string);
+      body.append("", fileBody);
+    } else if (
+      typeof FormData !== "undefined" &&
+      fileBody instanceof FormData
+    ) {
+      body = fileBody;
+      body.append("cacheControl", options.cacheControl as string);
+    } else {
+      body = fileBody;
+      headers["cache-control"] = `max-age=${options.cacheControl}`;
+      headers["content-type"] = options.contentType as string;
     }
+
+    const res = await fetch(url.toString(), {
+      method: "PUT",
+      body: body as BodyInit,
+      headers,
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      return {
+        data: { path: path, fullPath: data.Key },
+        error: null,
+      };
+    } else {
+      const error = data;
+      return { data: null, error };
+    }
+  } catch (error) {
+    throw error;
   }
+}
 
 export class Onedoc {
   private apiKey: string;
-  private endpoint: string = "http://localhost:3000";
+  private endpoint: string = "https://app.onedoclabs.com";
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
@@ -114,14 +110,24 @@ export class Onedoc {
   }
 
   async render(document: DocumentInput) {
+    const assets = [
+      ...(document.assets || []),
+      {
+        path: "/index.html",
+        content: document.html,
+      },
+    ];
+
     // Fetch the /api/docs/initiate API endpoint
     const information = await fetch(this.buildUrl("/api/docs/initiate"), {
-      method:"POST",
+      method: "POST",
       headers: {
-        "X-Api-Key": this.apiKey,
-        "Content-Type": "application/json" // Set Content-Type if you are sending JSON data
+        "x-api-Key": this.apiKey,
+        "Content-Type": "application/json", // Set Content-Type if you are sending JSON data
       },
-      body: JSON.stringify(document)
+      body: JSON.stringify({
+        assets,
+      }),
     });
 
     // Show the response body
@@ -131,31 +137,38 @@ export class Onedoc {
 
     const signedURLs = response.signedUrls;
 
-    signedURLs.forEach( async (e) => {
-      
-        const asset = document.assets?.find( item => {
+    signedURLs.forEach(async (e) => {
+      const asset = document.assets?.find((item) => {
+        return item.path == e.path;
+      });
 
-          return item.path == e.path;
-        });
+      if (asset?.content) {
+        await uploadToSignedUrl(e.signedUrl, e.path, e.token, asset.content);
+      } else if (e.path == "/index.html") {
+        let htmlBuilder = new HtmlBuilder("Onedoc");
 
-        if (asset?.content){
+        const styleSheets = document.assets
+          ?.filter((asset) => asset.path.includes(".css"))
+          .map((asset) => asset.path);
 
-          await uploadToSignedUrl( e.signedUrl, e.path, e.token, asset.content);
+        const html: string = htmlBuilder.build(document.html, styleSheets);
 
-        }else if (e.path == "/index.html") {
-          
-          let htmlBuilder = new HtmlBuilder("Onedoc");
+        await uploadToSignedUrl(e.signedUrl, e.path, e.token, html);
+      }
+    });
 
-          const styleSheets = document.assets?.filter(asset => asset.path.includes('.css')).map(asset => asset.path);
+    const doc = await fetch(this.buildUrl("/api/docs/generate"), {
+      method: "POST",
+      headers: {
+        "x-api-key": this.apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...response,
+        name: "test",
+      }),
+    });
 
-          const html:string = htmlBuilder.build(document.html, styleSheets);
-
-          await uploadToSignedUrl( e.signedUrl, e.path, e.token, html);
-  
-        }
-  
-    })
-  
-    return response;
+    return doc.arrayBuffer();
   }
 }
