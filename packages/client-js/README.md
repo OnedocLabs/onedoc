@@ -1,7 +1,5 @@
 # @onedoc/client
 
----
-
 ## Installation
 
 Onedoctor is available as an [npm package](https://www.npmjs.com/package/@onedoc/client).
