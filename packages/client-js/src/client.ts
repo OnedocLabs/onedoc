@@ -169,6 +169,19 @@ export class Onedoc {
       }),
     });
 
-    return doc.arrayBuffer();
+    // If status is not 200, it means there is an error
+    if (doc.status !== 200) {
+      return {
+        file: null,
+        error: (await doc.json()).error,
+        info: {},
+      };
+    }
+
+    return {
+      file: doc.arrayBuffer(),
+      error: null,
+      info: {},
+    };
   }
 }
