@@ -180,7 +180,7 @@ export class Onedoc {
     }
 
     return {
-      file: doc.arrayBuffer(),
+      file: await doc.arrayBuffer(),
       error: null,
       info: {},
     };
