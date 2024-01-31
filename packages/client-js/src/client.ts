@@ -3,10 +3,10 @@ export interface PathString {
   path: string;
   content: string;
 }
-// export interface PathBuffer{
-//   path: string;
-//   content: Buffer;
-// }
+export interface PathBuffer{
+  path: string;
+  content: Buffer;
+}
 
 export interface ExternalLink {
   href: string;
@@ -20,8 +20,7 @@ export interface DocumentInput {
     keywords?: string[];
     date?: string;
   };
-  assets?: PathString[];
-  //| PathBuffer
+  assets?: PathString[] | PathBuffer[];
   //| ExternalLink
 }
 
@@ -143,8 +142,11 @@ export class Onedoc {
       });
 
       if (asset?.content) {
+
         await uploadToSignedUrl(e.signedUrl, e.path, e.token, asset.content);
+
       } else if (e.path == "/index.html") {
+
         let htmlBuilder = new HtmlBuilder("Onedoc");
 
         const styleSheets = document.assets
