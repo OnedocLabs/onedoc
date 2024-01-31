@@ -173,7 +173,8 @@ export class Onedoc {
     if (doc.status !== 200) {
       return {
         file: null,
-        error: (await doc.json()).error,
+        error: ((await doc.json()).error ||
+          "An unknown error has occurred") as string,
         info: {},
       };
     }
