@@ -15,6 +15,11 @@ export interface DocumentInput {
   html: string;
   title?: string;
   assets?: PathString[] | PathBuffer[];
+  save?: boolean;
+  /**
+   * Number of seconds to cache the file in the CDN for.
+   */
+  expiresIn?: number;
   //| ExternalLink
 }
 
@@ -158,6 +163,8 @@ export class Onedoc {
       },
       body: JSON.stringify({
         ...response,
+        save: document.save || false,
+        expiresIn: document.expiresIn || 24 * 3600,
         name: "test",
       }),
     });
