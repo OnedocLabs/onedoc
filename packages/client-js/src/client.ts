@@ -119,7 +119,7 @@ export class Onedoc {
         "Content-Type": "application/json", // Set Content-Type if you are sending JSON data
       },
       body: JSON.stringify({
-        assets,
+        assets
       }),
     });
 
