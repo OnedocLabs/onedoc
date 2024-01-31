@@ -1,6 +1,6 @@
 {
   "name": "@onedoc/client",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Onedoc client for JavaScript",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
