@@ -18,16 +18,16 @@ import { writeFileSync } from "fs";
 
 const onedoc = new Onedoc("xxx-xxx-xxx-xxx"); // your API key
 
-writeFileSync(
-  "./test.pdf",
-  Buffer.from(
-    await onedoc.render({
-      html: "<h1 style='color: red;'>Hello world!</h1>",
-      assets: [],
-    })
-  ),
-  "binary"
-);
+const { file, error, info } = await onedoc.render({
+  html: "<h1 style='color: red;'>Hello world!</h1>",
+  assets: [],
+});
+
+if (error) {
+  throw error;
+}
+
+writeFileSync("./test.pdf", Buffer.from(file), "binary");
 ```
 
 ## Documentation
