@@ -102,7 +102,7 @@ export class Onedoc {
     return `${this.endpoint}${path}`;
   }
 
-  async render(document: DocumentInput) {
+  async render(document: DocumentInput, dev = false) {
     const assets = [
       ...(document.assets || []),
       {
@@ -144,7 +144,7 @@ export class Onedoc {
           ?.filter((asset) => asset.path.includes(".css"))
           .map((asset) => asset.path);
 
-        const html: string = htmlBuilder.build(document.html, styleSheets);
+        const html: string = htmlBuilder.build(document.html, styleSheets, dev);
 
         await uploadToSignedUrl(e.signedUrl, e.path, e.token, html);
       }
