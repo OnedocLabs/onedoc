@@ -7,8 +7,9 @@ The first developer-oriented document platform. Generate, host and track documen
 
 🎯 **Our Goal**: Onedoc is dedicated to transforming document management. We aim to empower businesses and developers to create, manage, and utilize documents more effectively, driving productivity and innovation in today's fast-paced, digital-first world.
 
-# API
-Coming soon ..
+# SDK
+
+- [Node.js SDK](https://www.npmjs.com/package/@onedoc/client)
 
 # Contributing
 Join our [waiting list](https://www.onedoclabs.com/) and visit our [website](https://www.onedoclabs.com/) <br>
