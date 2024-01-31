@@ -3,7 +3,7 @@ export interface PathString {
   path: string;
   content: string;
 }
-export interface PathBuffer{
+export interface PathBuffer {
   path: string;
   content: Buffer;
 }
@@ -13,13 +13,7 @@ export interface ExternalLink {
 }
 export interface DocumentInput {
   html: string;
-  metadata?: {
-    title?: string;
-    author?: string;
-    subject?: string;
-    keywords?: string[];
-    date?: string;
-  };
+  title?: string;
   assets?: PathString[] | PathBuffer[];
   //| ExternalLink
 }
@@ -142,12 +136,9 @@ export class Onedoc {
       });
 
       if (asset?.content) {
-
         await uploadToSignedUrl(e.signedUrl, e.path, e.token, asset.content);
-
       } else if (e.path == "/index.html") {
-
-        let htmlBuilder = new HtmlBuilder("Onedoc");
+        let htmlBuilder = new HtmlBuilder(document.title);
 
         const styleSheets = document.assets
           ?.filter((asset) => asset.path.includes(".css"))
