@@ -27,7 +27,7 @@ jobs:
       - run: git config --list
       - run: git config --list
         working-directory: ./packages/client-js
-      - run: ls
+      - run: ls -a
       - run: npm version patch -m "Bump version to %s [skip ci]" --verbose
         working-directory: ./packages/client-js
       - run: npm publish --access public
