@@ -20,12 +20,12 @@ jobs:
           cache: npm
           cache-dependency-path: ./packages/client-js/package-lock.json
           registry-url: "https://registry.npmjs.org"
-      - run: ls
       - run: npm install
         working-directory: ./packages/client-js
       - run: npm run build
         working-directory: ./packages/client-js
       - run: git config --list
+      - run: ls
       - run: npm version patch -m "Bump version to %s [skip ci]" --verbose
         working-directory: ./packages/client-js
       - run: npm publish --access public
