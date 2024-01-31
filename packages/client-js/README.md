@@ -2,7 +2,7 @@
 
 ## Installation
 
-Onedoctor is available as an [npm package](https://www.npmjs.com/package/@onedoc/client).
+Onedoc is available as an [npm package](https://www.npmjs.com/package/@onedoc/client).
 
 ```bash
 npm install @onedoc/client
