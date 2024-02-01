@@ -102,7 +102,7 @@ export class Onedoc {
     return `${this.endpoint}${path}`;
   }
 
-  async render(document: DocumentInput, dev = false) {
+  async render(document: DocumentInput, test = false, save = false, expiresIn = 1 ) {
     const assets = [
       ...(document.assets || []),
       {
@@ -144,7 +144,7 @@ export class Onedoc {
           ?.filter((asset) => asset.path.includes(".css"))
           .map((asset) => asset.path);
 
-        const html: string = htmlBuilder.build(document.html, styleSheets, dev);
+        const html: string = htmlBuilder.build(document.html, styleSheets, test);
 
         await uploadToSignedUrl(e.signedUrl, e.path, e.token, html);
       }
@@ -159,6 +159,9 @@ export class Onedoc {
       body: JSON.stringify({
         ...response,
         name: "test",
+        test :test,
+        save: save,
+        expiresIn: expiresIn
       }),
     });
 
@@ -166,16 +169,29 @@ export class Onedoc {
     if (doc.status !== 200) {
       return {
         file: null,
+        link: null,
         error: ((await doc.json()).error ||
           "An unknown error has occurred") as string,
         info: {},
       };
     }
 
-    return {
-      file: await doc.arrayBuffer(),
-      error: null,
-      info: {},
-    };
+    if (!save){
+      return {
+        file: await doc.arrayBuffer(),
+        link: null,
+        error: null,
+        info: {},
+      };
+    }{
+      return {
+        file: null,
+        link: (await doc.json()).url_link,
+        error: null,
+        info: {},
+      }
+    }
+
+    
   }
 }
