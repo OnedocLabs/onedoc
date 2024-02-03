@@ -106,7 +106,7 @@ export class Onedoc {
   }
 
   async render(document: DocumentInput ) {
-    
+
     const assets = [
       ...(document.assets || []),
       {
@@ -115,7 +115,7 @@ export class Onedoc {
       },
     ];
 
-    const test : boolean =  document.test ? document.test : false;
+    const test : boolean =  document.test ? document.test : true;
     const save : boolean = document.save ? document.save : false;
     const expiresIn:number = document.expiresIn ? document.expiresIn : 1;
 
