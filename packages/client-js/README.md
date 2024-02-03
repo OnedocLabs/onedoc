@@ -32,7 +32,7 @@ writeFileSync("./test.pdf", Buffer.from(file), "binary");
 
 ## Documentation
 
-For more information, please visit [https://docs.onedoclabs.com/quickstart/nodejs](https://docs.onedoclabs.com/quickstart/nodejs).
+For more information, please visit [our documentation](https://docs.onedoclabs.com/components/introduction).
 
 ## Support
 

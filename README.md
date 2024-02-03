@@ -15,7 +15,7 @@
 
 # onedoc
 
-## Check our [documentation(https://docs.onedoclabs.com)] out !
+Check our [documentation(https://docs.onedoclabs.com)] out !
 
 The first developer-oriented document platform. Generate, host and track documents with a single API, beautifully.
 
