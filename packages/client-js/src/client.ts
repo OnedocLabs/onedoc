@@ -14,6 +14,9 @@ export interface ExternalLink {
 export interface DocumentInput {
   html: string;
   title?: string;
+  test?:boolean;
+  save?:boolean;
+  expiresIn?:number;
   assets?: PathString[] | PathBuffer[];
   save?: boolean;
   /**
@@ -107,14 +110,19 @@ export class Onedoc {
     return `${this.endpoint}${path}`;
   }
 
-  async render(document: DocumentInput, dev = false) {
+  async render(document: DocumentInput ) {
+
     const assets = [
       ...(document.assets || []),
       {
         path: "/index.html",
-        content: document.html,
+        content: document.html
       },
     ];
+
+    const test : boolean =  document.test ? document.test : true;
+    const save : boolean = document.save ? document.save : false;
+    const expiresIn:number = document.expiresIn ? document.expiresIn : 1;
 
     // Fetch the /api/docs/initiate API endpoint
     const information = await fetch(this.buildUrl("/api/docs/initiate"), {
@@ -124,7 +132,7 @@ export class Onedoc {
         "Content-Type": "application/json", // Set Content-Type if you are sending JSON data
       },
       body: JSON.stringify({
-        assets,
+        assets
       }),
     });
 
@@ -160,7 +168,7 @@ export class Onedoc {
           ?.filter((asset) => asset.path.includes(".css"))
           .map((asset) => asset.path);
 
-        const html: string = htmlBuilder.build(document.html, styleSheets, dev);
+        const html: string = htmlBuilder.build(document.html, styleSheets, test);
 
         await uploadToSignedUrl(e.signedUrl, e.path, e.token, html);
       }
@@ -179,6 +187,9 @@ export class Onedoc {
         save: document.save || false,
         expiresIn: document.expiresIn || 24 * 3600,
         name: "test",
+        test :test,
+        save: save,
+        expiresIn: expiresIn
       }),
     });
 
@@ -186,17 +197,30 @@ export class Onedoc {
     if (doc.status !== 200) {
       return {
         file: null,
+        link: null,
         error: ((await doc.json()).error ||
           "An unknown error has occurred") as string,
         info: {},
       };
     }
 
-    return {
-      file: await doc.arrayBuffer(),
-      error: null,
-      info: {},
-    };
+    if (!save){
+      return {
+        file: await doc.arrayBuffer(),
+        link: null,
+        error: null,
+        info: {},
+      };
+    }{
+      return {
+        file: null,
+        link: (await doc.json()).url_link,
+        error: null,
+        info: {},
+      }
+    }
+
+    
   }
 }
 
