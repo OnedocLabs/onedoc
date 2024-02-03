@@ -14,9 +14,7 @@ export interface ExternalLink {
 export interface DocumentInput {
   html: string;
   title?: string;
-  test?:boolean;
-  save?:boolean;
-  expiresIn?:number;
+  test?: boolean;
   assets?: PathString[] | PathBuffer[];
   save?: boolean;
   /**
@@ -110,19 +108,18 @@ export class Onedoc {
     return `${this.endpoint}${path}`;
   }
 
-  async render(document: DocumentInput ) {
-
+  async render(document: DocumentInput) {
     const assets = [
       ...(document.assets || []),
       {
         path: "/index.html",
-        content: document.html
+        content: document.html,
       },
     ];
 
-    const test : boolean =  document.test ? document.test : true;
-    const save : boolean = document.save ? document.save : false;
-    const expiresIn:number = document.expiresIn ? document.expiresIn : 1;
+    const test: boolean = document.test ? document.test : true;
+    const save: boolean = document.save ? document.save : false;
+    const expiresIn: number = document.expiresIn ? document.expiresIn : 1;
 
     // Fetch the /api/docs/initiate API endpoint
     const information = await fetch(this.buildUrl("/api/docs/initiate"), {
@@ -132,7 +129,7 @@ export class Onedoc {
         "Content-Type": "application/json", // Set Content-Type if you are sending JSON data
       },
       body: JSON.stringify({
-        assets
+        assets,
       }),
     });
 
@@ -168,7 +165,11 @@ export class Onedoc {
           ?.filter((asset) => asset.path.includes(".css"))
           .map((asset) => asset.path);
 
-        const html: string = htmlBuilder.build(document.html, styleSheets, test);
+        const html: string = htmlBuilder.build(
+          document.html,
+          styleSheets,
+          test
+        );
 
         await uploadToSignedUrl(e.signedUrl, e.path, e.token, html);
       }
@@ -184,12 +185,10 @@ export class Onedoc {
       },
       body: JSON.stringify({
         ...response,
-        save: document.save || false,
-        expiresIn: document.expiresIn || 24 * 3600,
         name: "test",
-        test :test,
+        test: test,
         save: save,
-        expiresIn: expiresIn
+        expiresIn: expiresIn,
       }),
     });
 
@@ -204,23 +203,22 @@ export class Onedoc {
       };
     }
 
-    if (!save){
+    if (!save) {
       return {
         file: await doc.arrayBuffer(),
         link: null,
         error: null,
         info: {},
       };
-    }{
+    }
+    {
       return {
         file: null,
         link: (await doc.json()).url_link,
         error: null,
         info: {},
-      }
+      };
     }
-
-    
   }
 }
 
