@@ -128,6 +128,17 @@ export class Onedoc {
       }),
     });
 
+    if (information.status !== 200) {
+      return {
+        file: null,
+        error: ((await information.json()).error ||
+          "An unknown error has occurred") as string,
+        info: {
+          status: information.status,
+        },
+      };
+    }
+
     // Show the response body
     const response = await information.json();
 
@@ -154,6 +165,8 @@ export class Onedoc {
         await uploadToSignedUrl(e.signedUrl, e.path, e.token, html);
       }
     });
+
+    console.log(response);
 
     const doc = await fetch(this.buildUrl("/api/docs/generate"), {
       method: "POST",
@@ -186,3 +199,14 @@ export class Onedoc {
     };
   }
 }
+
+/**
+ *         "raw": "{\"statusCode\":500,\"error\":\"internal\",\"originalError\":{\"length\":135,\"name\":\"error\",\"severity\":\"ERROR\",\"code\":\"22P02\",\"file\":\"uuid.c\",\"line\":\"133\",\"routine\":\"string_to_uuid\"},\"details\":\"insert into \\\"objects\\\" (\\\"bucket_id\\\", \\\"metadata\\\", \\\"name\\\", \\\"owner\\\", \\\"owner_id\\\", \\\"version\\\") values ($1, DEFAULT, $2, DEFAULT, DEFAULT, $3) - invalid input syntax for type uuid: \\\"pdf-70924304-2a67-4f75-99de-7e53bdbd7251\\\"\"}",
+
+ */
+
+/** allow_owned_buckets
+ * ( SELECT (EXISTS ( SELECT 1
+           FROM buckets
+          WHERE ((buckets.id = (objects.bucket_id)::uuid) AND (buckets.api_key_id = (((current_setting('request.headers'::text, true))::json ->> 'x-api-key'::text))::uuid)))) AS "exists")
+ */
