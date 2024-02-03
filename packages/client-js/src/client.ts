@@ -14,6 +14,9 @@ export interface ExternalLink {
 export interface DocumentInput {
   html: string;
   title?: string;
+  test?:boolean;
+  save?:boolean;
+  expiresIn?:number;
   assets?: PathString[] | PathBuffer[];
   //| ExternalLink
 }
@@ -102,14 +105,19 @@ export class Onedoc {
     return `${this.endpoint}${path}`;
   }
 
-  async render(document: DocumentInput, test = false, save = false, expiresIn = 1 ) {
+  async render(document: DocumentInput ) {
+    
     const assets = [
       ...(document.assets || []),
       {
         path: "/index.html",
-        content: document.html,
+        content: document.html
       },
     ];
+
+    const test : boolean =  document.test ? document.test : false;
+    const save : boolean = document.save ? document.save : false;
+    const expiresIn:number = document.expiresIn ? document.expiresIn : 1;
 
     // Fetch the /api/docs/initiate API endpoint
     const information = await fetch(this.buildUrl("/api/docs/initiate"), {
