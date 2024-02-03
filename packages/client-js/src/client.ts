@@ -185,7 +185,7 @@ export class Onedoc {
       },
       body: JSON.stringify({
         ...response,
-        name: "test",
+        title: document.title || "document",
         test: test,
         save: save,
         expiresIn: expiresIn,
