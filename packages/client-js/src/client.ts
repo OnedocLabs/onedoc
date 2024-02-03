@@ -117,8 +117,8 @@ export class Onedoc {
       },
     ];
 
-    const test: boolean = document.test ? document.test : true;
-    const save: boolean = document.save ? document.save : false;
+    const test: boolean = document.test === undefined ? true : document.test;
+    const save: boolean = document.save === undefined ? false : document.save;
     const expiresIn: number = document.expiresIn ? document.expiresIn : 1;
 
     // Fetch the /api/docs/initiate API endpoint
