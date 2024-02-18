@@ -18,15 +18,17 @@ Stop spending hours making ugly documents, and start creating a dynamic experien
 
 Onedoc makes it easy for developers to generate beautiful PDFs. It is a comprehensive solution with:
 
-* An [open-source library](https://github.com/OnedocLabs/react-print-pdf) to design your documents
-* A simple [API](https://docs.onedoclabs.com/api-reference/introduction) to generate your documents
-* A [cloud platform](https://app.onedoclabs.com/) to host and track your documents
+* An [open-source library](https://github.com/OnedocLabs/react-print-pdf) to design your documents.
+* A simple [API](https://docs.onedoclabs.com/api-reference/introduction) to generate your documents.
+* A [cloud platform](https://app.onedoclabs.com/) to host and track your documents.
 
 
-The first developer-oriented document platform. Generate, host and track documents with a single API
+The first developer-oriented document platform. Generate, host and track documents with a single API.
 
 
-https://github.com/OnedocLabs/onedoc/assets/33000377/6e579873-5398-48b4-b52c-479a89b7a30f
+
+https://github.com/OnedocLabs/onedoc/assets/33000377/5bbda4a8-150c-48ed-877b-b0a805fa647f
+
 
 
 # Why do documents feel so outdated❓
@@ -69,4 +71,7 @@ There are many ways you can contribute to the sucees of Onedoc :
 * **Onedoc:** Check out our [website](https://www.onedoclabs.com/) and sign-up to our app to [get started](https://app.onedoclabs.com/)
 * **react-print-pdf:** Contribute to the [open-source library](https://github.com/OnedocLabs/react-print-pdf) and share components/templates with the community.
 * **Join the community:** Follow us on [X](https://twitter.com/Onedoclabs), [Linkedin](https://www.linkedin.com/company/onedoclabs/), and engage with others on [Discord](https://discord.com/invite/uRJE6e2rgr)
+
+
+![intro](https://github.com/OnedocLabs/onedoc/assets/33000377/ee77e121-e1df-4b43-8684-53a1bcc9fc8b)
 
