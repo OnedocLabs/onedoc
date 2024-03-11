@@ -18,7 +18,10 @@ jobs:
         with:
           python-version: 3.8
           # NB: we use pyproject.toml so we can straight use the build command
-      - run: python3 -m pip install --upgrade build twine
+      - run: python3 -m pip install --upgrade build twine bump-my-version
+        working-directory: ./packages/client-py
+      - name: Bump version
+        run: bump-my-version patch
         working-directory: ./packages/client-py
       - run: python3 -m build
         working-directory: ./packages/client-py
@@ -27,3 +30,6 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API }}
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Bump version [skip ci]"
