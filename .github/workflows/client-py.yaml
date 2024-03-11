@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "packages/client-py/**"
+    #paths:
+    #- "packages/client-py/**"
 
 jobs:
   build-and-publish:
@@ -19,8 +19,11 @@ jobs:
           python-version: 3.8
           # NB: we use pyproject.toml so we can straight use the build command
       - run: python3 -m pip install --upgrade build twine
+        working-directory: ./packages/client-py
       - run: python3 -m build
+        working-directory: ./packages/client-py
       - run: python3 -m twine upload --repository pypi dist/*
+        working-directory: ./packages/client-py
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API }}
