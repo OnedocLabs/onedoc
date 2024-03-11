@@ -13,6 +13,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+  "requests >= 2.0"
+]
 
 [project.urls]
 Homepage = "https://github.com/onedoclabs/onedoc"
