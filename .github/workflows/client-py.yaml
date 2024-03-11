@@ -21,7 +21,7 @@ jobs:
       - run: python3 -m pip install --upgrade build twine bump-my-version
         working-directory: ./packages/client-py
       - name: Bump version
-        run: bump-my-version patch
+        run: bump-my-version bump patch
         working-directory: ./packages/client-py
       - run: python3 -m build
         working-directory: ./packages/client-py
