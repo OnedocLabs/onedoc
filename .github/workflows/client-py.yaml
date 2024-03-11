@@ -1,0 +1,26 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/client-py/**"
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          # NB: we use pyproject.toml so we can straight use the build command
+      - run: python3 -m pip install --upgrade build twine
+      - run: python3 -m build
+      - run: python3 -m twine upload --repository pypi dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API }}
