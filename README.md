@@ -25,10 +25,7 @@ Onedoc makes it easy for developers to generate beautiful PDFs. It is a comprehe
 
 The first developer-oriented document platform. Generate, host and track documents with a single API.
 
-
-
-https://github.com/OnedocLabs/onedoc/assets/33000377/5bbda4a8-150c-48ed-877b-b0a805fa647f
-
+https://github.com/OnedocLabs/onedoc/assets/33000377/170f52e1-e4a8-4956-9cac-ca0f081999ac
 
 
 # Why do documents feel so outdated❓
