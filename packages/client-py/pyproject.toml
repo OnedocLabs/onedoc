@@ -14,7 +14,8 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "requests >= 2.0"
+  "requests >= 2.0",
+  "pikepdf >= 8.13.0"
 ]
 
 [project.urls]
