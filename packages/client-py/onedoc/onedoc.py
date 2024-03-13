@@ -1,5 +1,6 @@
 import requests
 import json
+from htmlBuilder import HtmlBuilder
 
 from typing import Dict, Union, List, Any, BinaryIO
 
@@ -9,14 +10,14 @@ DEFAULT_FILE_OPTIONS = {
     "upsert": False,
 }
 
-class _HtmlBuilder:
-    def __init__(self, title: str = None):
-        self.title = title or "Document"
+# class _HtmlBuilder:
+#     def __init__(self, title: str = None):
+#         self.title = title or "Document"
 
-    def build(self, html_content: str, stylesheets: List[str] = None, test: bool = True) -> str:
-        # Implementation of HTML building logic goes here
-        # This is a placeholder implementation
-        return "<!DOCTYPE html><html><head><title>{}</title></head><body>{}</body></html>".format(self.title, html_content)
+#     def build(self, html_content: str, stylesheets: List[str] = None, test: bool = True) -> str:
+#         # Implementation of HTML building logic goes here
+#         # This is a placeholder implementation
+#         return "<!DOCTYPE html><html><head><title>{}</title></head><body>{}</body></html>".format(self.title, html_content)
 
 class Onedoc:
     def __init__(self, api_key: str):
@@ -80,7 +81,7 @@ class Onedoc:
                 self._upload_to_signed_url(e['signedUrl'], e['path'], asset['content'])
 
             elif e['path'] == "/index.html":
-                html_builder = _HtmlBuilder(document.get('title'))
+                html_builder = HtmlBuilder(document.get('title'))
                 style_sheets = [asset['path'] for asset in document.get('assets', []) if asset['path'].endswith(".css")]
                 html = html_builder.build(document['html'], style_sheets, test)
                 self._upload_to_signed_url(e['signedUrl'], e['path'], html)
