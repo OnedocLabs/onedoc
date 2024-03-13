@@ -1,4 +1,4 @@
-class HtmlBuilder:
+class _HtmlBuilder:
     def __init__(self, title=None):
         self._title = title
         self._start = """<!DOCTYPE html>

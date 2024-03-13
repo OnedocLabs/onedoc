@@ -1,6 +1,10 @@
 import requests
 import json
-from htmlBuilder import HtmlBuilder
+
+from pikepdf import Pdf
+
+from .html_builder import _HtmlBuilder
+from .merge import merge as lib_merge
 
 from typing import Dict, Union, List, Any, BinaryIO
 
@@ -9,15 +13,6 @@ DEFAULT_FILE_OPTIONS = {
     "contentType": "text/plain;charset=UTF-8",
     "upsert": False,
 }
-
-# class _HtmlBuilder:
-#     def __init__(self, title: str = None):
-#         self.title = title or "Document"
-
-#     def build(self, html_content: str, stylesheets: List[str] = None, test: bool = True) -> str:
-#         # Implementation of HTML building logic goes here
-#         # This is a placeholder implementation
-#         return "<!DOCTYPE html><html><head><title>{}</title></head><body>{}</body></html>".format(self.title, html_content)
 
 class Onedoc:
     def __init__(self, api_key: str):
@@ -81,7 +76,7 @@ class Onedoc:
                 self._upload_to_signed_url(e['signedUrl'], e['path'], asset['content'])
 
             elif e['path'] == "/index.html":
-                html_builder = HtmlBuilder(document.get('title'))
+                html_builder = _HtmlBuilder(document.get('title'))
                 style_sheets = [asset['path'] for asset in document.get('assets', []) if asset['path'].endswith(".css")]
                 html = html_builder.build(document['html'], style_sheets, test)
                 self._upload_to_signed_url(e['signedUrl'], e['path'], html)
@@ -120,29 +115,5 @@ class Onedoc:
                 "info": {},
             }
 
-    def merge(self, file_a: BinaryIO, file_a_name: str, file_b: BinaryIO, file_b_name: str):
-        # The server expects a single 'file' key which contains a list of all the files.
-        # The server will then merge the files and return the merged file.
-
-        response = requests.post(
-            #'http://localhost:3000/api/docs/merge',
-            self._build_url("/api/docs/merge"),
-            headers={"x-api-key": self.api_key},
-            files=[
-                ("file", (file_a_name, file_a, "application/pdf")),
-                ("file", (file_b_name, file_b, "application/pdf")),
-            ],
-        )
-
-        if response.status_code != 200:
-            return {
-                "file": None,
-                "error": response.json().get('error', "An unknown error has occurred"),
-                "info": {"status": response.status_code},
-            }
-
-        return {
-            "file": response.content,
-            "error": None,
-            "info": {},
-        }
+    def merge(self, file_a: BinaryIO, file_a_name: str, file_b: BinaryIO, file_b_name: str) -> Pdf:
+        return lib_merge(file_a, file_a_name, file_b, file_b_name)
