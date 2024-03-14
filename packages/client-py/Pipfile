@@ -1,0 +1,14 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+requests = ">=2.0"
+pikepdf = ">=8.13.0"
+python-dotenv = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"

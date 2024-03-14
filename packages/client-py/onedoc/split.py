@@ -13,10 +13,12 @@ def split(doc: BinaryIO, page: int) -> Tuple[Pdf, Pdf]:
     pdf_a = Pdf.new()
     pdf_b = Pdf.new()
 
-    for i, page in enumerate(pdf.pages):
+    i = 0
+
+    for i, pdf_page in enumerate(pdf.pages):
         if i < page:
-            pdf_a.pages.append(page)
+            pdf_a.pages.append(pdf_page)
         else:
-            pdf_b.pages.append(page)
+            pdf_b.pages.append(pdf_page)
 
     return pdf_a, pdf_b
