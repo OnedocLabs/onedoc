@@ -10,6 +10,7 @@ def split(doc: BinaryIO, page: int) -> Tuple[Pdf, Pdf]:
     :return: A tuple containing the two split PDF documents.
     """
     pdf = doc
+
     try:
       pdf = Pdf.open(doc)
     except:
