@@ -5,8 +5,9 @@ from pikepdf import Pdf
 
 from .html_builder import _HtmlBuilder
 from .merge import merge as lib_merge
+from .split import split as lib_split
 
-from typing import Dict, Union, List, Any, BinaryIO
+from typing import Dict, Tuple, Union, List, Any, BinaryIO
 
 DEFAULT_FILE_OPTIONS = {
     "cacheControl": "3600",
@@ -117,3 +118,6 @@ class Onedoc:
 
     def merge(self, file_a: BinaryIO, file_a_name: str, file_b: BinaryIO, file_b_name: str) -> Pdf:
         return lib_merge(file_a, file_a_name, file_b, file_b_name)
+
+    def split(self, doc: BinaryIO, page: int) -> Tuple[Pdf, Pdf]:
+        return lib_split(doc, page)
