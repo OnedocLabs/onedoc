@@ -19,7 +19,12 @@ def merge(doc_a_buffer, doc_a_name, doc_b_buffer, doc_b_name):
   ]
 
   for document in documents:
-      pdf = Pdf.open(document['data'])
+      pdf = document['data']
+      try:
+        pdf = Pdf.open(document['data'])
+      except:
+        pass
+
       merged.pages.extend(pdf.pages)
 
       offsets[document['path']] = (

@@ -9,7 +9,12 @@ def split(doc: BinaryIO, page: int) -> Tuple[Pdf, Pdf]:
     :param page: The page number to split at. Pages before and including this page will be in the first document, and pages after will be in the second document.
     :return: A tuple containing the two split PDF documents.
     """
-    pdf = Pdf.open(doc)
+    pdf = doc
+    try:
+      pdf = Pdf.open(doc)
+    except:
+      pass
+
     pdf_a = Pdf.new()
     pdf_b = Pdf.new()
 
