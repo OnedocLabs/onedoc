@@ -1,4 +1,5 @@
 from pikepdf import Pdf
+from typing import Tuple, BinaryIO
 
 def split(doc: BinaryIO, page: int) -> Tuple[Pdf, Pdf]:
     """
