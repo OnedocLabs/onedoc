@@ -3,9 +3,9 @@ import json
 
 from pikepdf import Pdf
 
-from html_builder import _HtmlBuilder
-from merge import merge as lib_merge
-from split import split as lib_split
+from .html_builder import _HtmlBuilder
+from .merge import merge as lib_merge
+from .split import split as lib_split
 
 from typing import Dict, Tuple, Any, BinaryIO
 
