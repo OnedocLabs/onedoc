@@ -35,7 +35,7 @@ class Onedoc:
             headers["cache-control"] = f"max-age={options['cacheControl']}"
         else:
             headers["Content-Type"] = options["contentType"]
-            file_body = str(file_body)
+            file_body = file_body.encode('utf-8')
 
         response = requests.put(url, data=file_body, headers=headers, files=files)
         data = response.json()
@@ -85,7 +85,7 @@ class Onedoc:
         doc_response = requests.post(
             self._build_url("/api/docs/generate"),
             headers={"x-api-key": self.api_key, "Content-Type": "application/json"},
-            json= json.dumps({
+            json=json.dumps({
                 "uploadURL":response["uploadURL"],
                 "username":response["username"],
                 "bucket":response["bucket"],

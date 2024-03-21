@@ -7,17 +7,17 @@ load_dotenv()
 onedoc = Onedoc(getenv("ONEDOC_API_KEY"))
 
 
-with open("packages/client-py/onedoc/styles.css", 'r') as file:
+with open("onedoc/styles.css", 'r') as file:
     # Read the entire content of the file into a variable
     css_content = file.read()
 print(css_content)
 
 # Define your document
 document = {
-    "html": "<h1>Table of contents</h1><a href='file://test.pdf#page=1'>First page</a><br/><a href='file://test.pdf#page=2'>Second page</a>",  # Simple HTML content
+    "html": "<h1>Table of contents</h1><a href='file://test.pdf#page=1'>First page</a><br/><a href='file://test.pdf#page=2'>ĐSecond page</a>",  # Simple HTML content
     "title": "My First Document",
     "test": False,  # Set to False to use in production
-    "save": True,  # Set to True if you want to save the document
+    "save": False,  # Set to True if you want to save the document
     "assets":[
         {
             "content": css_content ,
@@ -44,9 +44,9 @@ print(result)
 # # Render the document
 # result = onedoc.render(document)
 # print(result.get("file"))
-# f = open("hellowordpierre.pdf", "wb")
-# f.write(result.get("file"))
-# f.close()
+f = open("test-latin.pdf", "wb")
+f.write(result.get("file"))
+f.close()
 
 # Store the result to toc.pdf
 #f = open("toc.pdf", "wb")

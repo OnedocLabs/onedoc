@@ -37,4 +37,6 @@ class _HtmlBuilder:
 
             self._middle += self._watermark
 
-        return self._start + self._middle + self._end
+        content = self._start + self._middle + self._end
+
+        return content
