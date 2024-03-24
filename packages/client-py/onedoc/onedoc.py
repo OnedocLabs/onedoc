@@ -16,9 +16,9 @@ DEFAULT_FILE_OPTIONS = {
 }
 
 class Onedoc:
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, endpoint: str = "https://app.onedoclabs.com"):
         self.api_key = api_key
-        self.endpoint = "https://app.onedoclabs.com"
+        self.endpoint = endpoint
 
     def _build_url(self, path: str) -> str:
         return f"{self.endpoint}{path}"
