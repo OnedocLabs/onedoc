@@ -98,10 +98,11 @@ async function uploadToSignedUrl(
 
 export class Onedoc {
   private apiKey: string;
-  private endpoint: string = "https://app.onedoclabs.com";
+  private endpoint: string;
 
-  constructor(apiKey: string) {
+  constructor(apiKey: string, endpoint: string = "https://app.onedoclabs.com") {
     this.apiKey = apiKey;
+    this.endpoint = endpoint;
   }
 
   private buildUrl(path: string) {
