@@ -1,6 +1,6 @@
 [project]
 name = "client_onedoc"
-version = "0.0.18"
+version = "0.0.19"
 authors = [
   { name="Pierre Dorge", email="pierre.dorge@onedoclabs.com" },
   { name="Titouan Launay", email="titouan.launay@onedoclabs.com" },
