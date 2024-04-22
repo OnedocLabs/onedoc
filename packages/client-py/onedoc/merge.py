@@ -36,6 +36,12 @@ def merge(doc_a_buffer, doc_a_name, doc_b_buffer, doc_b_name):
             continue
 
         annotations = page.Annots
+        
+        try:
+            # Fixes issues where page.Annots may be a number
+            iter(annotations)
+        except TypeError:
+            continue
 
         for annotation in annotations:
             try:
