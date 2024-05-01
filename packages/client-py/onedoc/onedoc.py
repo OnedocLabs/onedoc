@@ -1,5 +1,9 @@
 import requests
 import json
+import time
+import datetime
+from datetime import timezone
+import mimetypes
 
 from pikepdf import Pdf
 
@@ -16,34 +20,12 @@ DEFAULT_FILE_OPTIONS = {
 }
 
 class Onedoc:
-    def __init__(self, api_key: str, endpoint: str = "https://app.onedoclabs.com"):
+    def __init__(self, api_key: str, endpoint: str = "https://api.fileforge.com"):
         self.api_key = api_key
         self.endpoint = endpoint
 
     def _build_url(self, path: str) -> str:
         return f"{self.endpoint}{path}"
-
-    def _upload_to_signed_url(self, url_to_fs: str, path: str, file_body: Any, file_options: Dict = None) -> Dict:
-        url = f"{url_to_fs}"
-
-        options = {**DEFAULT_FILE_OPTIONS, **(file_options or {})}
-        headers = {"x-upsert": str(options["upsert"])}
-        files = None
-
-        if isinstance(file_body, bytes):
-            files = {"file": (path, file_body, options["contentType"])}
-            headers["cache-control"] = f"max-age={options['cacheControl']}"
-        else:
-            headers["Content-Type"] = options["contentType"]
-            file_body = file_body.encode('utf-8')
-
-        response = requests.put(url, data=file_body, headers=headers, files=files)
-        data = response.json()
-
-        if response.ok:
-            return {"data": {"path": path, "fullPath": data.get("Key")}, "error": None}
-        else:
-            return {"data": None, "error": data}
 
     def render(self, document: Dict) -> Dict:
         assets = document.get('assets', []) + [{"path": "/index.html", "content": document['html']}]
@@ -51,59 +33,52 @@ class Onedoc:
         save = document.get('save', False)
 
         expires_in = document.get('expiresIn', 1)
+        # Add expires_in (in days) to the current time to get the expiration time
+        expires_at = int(time.time()) + (expires_in * 24 * 60 * 60)
+        # Convert to timestamp with timezone
+        expires_at = datetime.datetime.fromtimestamp(expires_at, timezone.utc).isoformat()
 
-        # Initiate document rendering process
-        information_response = requests.post(
-            self._build_url("/api/docs/initiate"),
-            headers={"x-api-key": self.api_key, "Content-Type": "application/json"},
-            json={"assets": assets}
+        files = (
+            ('options', (None, json.dumps({
+                'test': test,
+                'host': save,
+                'expiresAt': expires_at,
+                'fileName': document.get('title', "document")
+            }), 'application/json')),
         )
 
+        for asset in assets:
+            if asset and asset.get('path') == "/index.html":
 
-        if information_response.status_code != 200:
-            return {
-                "file": None,
-                "error": information_response.json().get('error', "An unknown error has occurred"),
-                "info": {"status": information_response.status_code},
-            }
-
-        response = information_response.json()
-        signed_urls = response['signedUrls']
-
-        for e in signed_urls:
-            asset = next((item for item in document.get('assets', []) if item['path'] == e['path']), None)
-
-            if asset and asset.get('content'):
-                self._upload_to_signed_url(e['signedUrl'], e['path'], asset['content'])
-
-            elif e['path'] == "/index.html":
                 html_builder = _HtmlBuilder(document.get('title'))
                 style_sheets = [asset['path'] for asset in document.get('assets', []) if asset['path'].endswith(".css")]
-                html = html_builder.build(document['html'], style_sheets, test)
-                self._upload_to_signed_url(e['signedUrl'], e['path'], html)
+                html = html_builder.build(document['html'], style_sheets)
 
-        doc_response = requests.post(
-            self._build_url("/api/docs/generate"),
-            headers={"x-api-key": self.api_key, "Content-Type": "application/json"},
-            json=json.dumps({
-                "uploadURL":response["uploadURL"],
-                "username":response["username"],
-                "bucket":response["bucket"],
-                "signedUrls":response["signedUrls"],
-                "password":response["password"],
-                "title": document.get('title', "document"),
-                "test": test,
-                "save": save,
-                "expiresIn": expires_in
-            })
+                files += (
+                    ('files', ('index.html', html, 'text/html')),
+                )
+            elif asset and asset.get('content'):
+                files += (
+                    ('files', (asset['path'], asset['content'], mimetypes.guess_type(asset['path'])[0] or 'application/octet-stream')),
+                )
+
+        generation = requests.post(
+            self._build_url("/pdf/generate"),
+            headers={"x-api-key": self.api_key},
+            files=files
         )
 
-        if doc_response.status_code != 200:
-            return doc_response.__dict__
+        if generation.status_code != 201:
+            return {
+                "file": None,
+                "link": None,
+                "error": generation.json(),
+                "info": {},
+            }
 
         if not save:
             return {
-                "file": doc_response.content,
+                "file": generation.content,
                 "link": None,
                 "error": None,
                 "info": {},
@@ -111,7 +86,7 @@ class Onedoc:
         else:
             return {
                 "file": None,
-                "link": doc_response.json().get('url_link'),
+                "link": generation.json().get('url'),
                 "error": None,
                 "info": {},
             }

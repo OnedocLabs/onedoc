@@ -21,15 +21,23 @@ document = {
     "assets":[
         {
             "content": css_content ,
-            "path": "/styles.css"
+            "path": "styles.css"
         }
     ]
 }
 
+# Start a timer
+import time
+start = time.time()
+
 # Render the document
 result = onedoc.render(document)
 
-print(result)
+# End the timer
+end = time.time()
+print("Time elapsed: ", end - start)
+
+# print(result)
 #for files that are not saved, remember to use "wb" when writing file
 # onedoc = Onedoc(api_key)
 
