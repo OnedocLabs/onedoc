@@ -92,7 +92,7 @@ export class Onedoc {
           .filter((a) => a.path.endsWith(".css"))
           .map((a) => a.path);
 
-        const html = htmlBuilder.build(document.html, styleSheets, test);
+        const html = htmlBuilder.build(document.html, styleSheets);
 
         const fileBlob = new Blob([html],{ type: "text/html" })
 
