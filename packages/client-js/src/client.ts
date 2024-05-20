@@ -1,5 +1,7 @@
 import { HtmlBuilder } from "./htmlBuilder";
-export interface PathString {
+import mime from "mime-types";
+
+export interface Asset {
   path: string;
   content: string;
 }
@@ -15,7 +17,7 @@ export interface DocumentInput {
   html: string;
   title?: string;
   test?: boolean;
-  assets?: PathString[] | PathBuffer[];
+  assets?: Asset[] | PathBuffer[];
   save?: boolean;
   /**
    * Number of seconds to cache the file in the CDN for.
@@ -40,67 +42,11 @@ type FileBody =
   | URLSearchParams
   | string;
 
-//https://www.npmjs.com/package/@supabase/storage-js?activeTab=code
-async function uploadToSignedUrl(
-  urlToFS: string,
-  path: string,
-  token: string,
-  fileBody: FileBody,
-  fileOptions?: any
-) {
-  const url = new URL(urlToFS + `/object/upload/sign/${path}`);
-  url.searchParams.set("token", token);
-
-  try {
-    let body;
-    const options = { upsert: DEFAULT_FILE_OPTIONS.upsert, ...fileOptions };
-    const headers: Record<string, string> = {
-      ...{ "x-upsert": String(options.upsert as boolean) },
-    };
-
-    if (typeof Blob !== "undefined" && fileBody instanceof Blob) {
-      body = new FormData();
-      body.append("cacheControl", options.cacheControl as string);
-      body.append("", fileBody);
-    } else if (
-      typeof FormData !== "undefined" &&
-      fileBody instanceof FormData
-    ) {
-      body = fileBody;
-      body.append("cacheControl", options.cacheControl as string);
-    } else {
-      body = fileBody;
-      headers["cache-control"] = `max-age=${options.cacheControl}`;
-      headers["content-type"] = options.contentType as string;
-    }
-
-    const res = await fetch(url.toString(), {
-      method: "PUT",
-      body: body as BodyInit,
-      headers,
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      return {
-        data: { path: path, fullPath: data.Key },
-        error: null,
-      };
-    } else {
-      const error = data;
-      return { data: null, error };
-    }
-  } catch (error) {
-    throw error;
-  }
-}
-
 export class Onedoc {
   private apiKey: string;
   private endpoint: string;
 
-  constructor(apiKey: string, endpoint: string = "https://app.onedoclabs.com") {
+  constructor(apiKey: string, endpoint: string = "https://api.fileforge.com") {
     this.apiKey = apiKey;
     this.endpoint = endpoint;
   }
@@ -109,117 +55,87 @@ export class Onedoc {
     return `${this.endpoint}${path}`;
   }
 
-  async render(document: DocumentInput) {
-    const assets = [
-      ...(document.assets || []),
-      {
-        path: "/index.html",
-        content: document.html,
-      },
-    ];
+  async render(document: DocumentInput): Promise<any> {
+    const assets: Asset[] = document.assets ?? [];
+    assets.push({ path: "/index.html", content: document.html });
 
-    const test: boolean = document.test === undefined ? true : document.test;
-    const save: boolean = document.save === undefined ? false : document.save;
-    const expiresIn: number = document.expiresIn ? document.expiresIn : 1;
+    const test: boolean = document.test ?? true;
+    const save: boolean = document.save ?? false;
 
-    // Fetch the /api/docs/initiate API endpoint
-    const information = await fetch(this.buildUrl("/api/docs/initiate"), {
-      method: "POST",
-      headers: {
-        "x-api-Key": this.apiKey,
-        "Content-Type": "application/json", // Set Content-Type if you are sending JSON data
-      },
-      body: JSON.stringify({
-        assets,
-      }),
-    });
+    const expires_in: number = document.expiresIn ?? 1;
+    const expires_at: Date = new Date(
+      Date.now() + expires_in * 24 * 60 * 60 * 1000
+    );
+    const expires_at_iso: string = expires_at.toISOString();
 
-    if (information.status !== 200) {
-      return {
-        file: null,
-        error: ((await information.json()).error ||
-          "An unknown error has occurred") as string,
-        info: {
-          status: information.status,
-        },
-      };
-    }
+    const formData = new FormData();
 
-    // Show the response body
-    const response = await information.json();
+    const optionsBlob = new Blob(
+      [
+        JSON.stringify({
+          test: test,
+          host: save,
+          expiresAt: expires_at_iso,
+          fileName: document.title ?? "document",
+        }),
+      ],
+      { type: "application/json" }
+    );
 
-    //--------------- UPLOAD FILES IN ASSETS ---------------
+    formData.append("options", optionsBlob);
 
-    const signedURLs = response.signedUrls;
+    assets.forEach((asset) => {
+      if (asset.path === "/index.html" && asset.content) {
+        // Assuming _HtmlBuilder exists and is imported
+        const htmlBuilder = new HtmlBuilder(document.title);
+        const styleSheets = assets
+          .filter((a) => a.path.endsWith(".css"))
+          .map((a) => a.path);
 
-    signedURLs.forEach(async (e) => {
-      const asset = document.assets?.find((item) => {
-        return item.path == e.path;
-      });
+        const html = htmlBuilder.build(document.html, styleSheets);
 
-      if (asset?.content) {
-        await uploadToSignedUrl(e.signedUrl, e.path, e.token, asset.content);
+        const fileBlob = new Blob([html],{ type: "text/html" })
 
-      } else if (e.path == "/index.html") {
-        let htmlBuilder = new HtmlBuilder(document.title);
+        formData.append('files', fileBlob, "index.html");
 
-        const styleSheets = document.assets
-          ?.filter((asset) => asset.path.includes(".css"))
-          .map((asset) => asset.path);
+  
+      } else if (asset.content) {
 
-        const html: string = htmlBuilder.build(
-          document.html,
-          styleSheets,
-          test
-        );
+        const assetType = mime.lookup(asset.path) || "application/octet-stream";
 
-        await uploadToSignedUrl(e.signedUrl, e.path, e.token, html);
+        const fileBlob = new Blob([asset.content],{ type: assetType })
+
+        formData.append('files', fileBlob, asset.path);
+
       }
     });
 
+    const response: Response = await fetch(
+      await this.buildUrl("/pdf/generate"),
+      {
+        method: "POST",
+        headers: {
+          "x-api-key": this.apiKey,
+        },
+        body: formData,
+      }
+    );
 
-    const doc = await fetch(this.buildUrl("/api/docs/generate"), {
-      method: "POST",
-      headers: {
-        "x-api-key": this.apiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...response,
-        title: document.title || "document",
-        test: test,
-        save: save,
-        expiresIn: expiresIn,
-      }),
-    });
-
-    // If status is not 200, it means there is an error
-    if (doc.status !== 200) {
-      return {
-        file: null,
-        link: null,
-        error: ((await doc.json()).error ||
-          "An unknown error has occurred") as string,
-        info: {},
-      };
-    }
-
-    if (!save) {
-      return {
-        file: await doc.arrayBuffer(),
-        link: null,
-        error: null,
-        info: {},
-      };
-    }
-    {
-      return {
-        file: null,
-        link: (await doc.json()).url_link,
-        error: null,
-        info: {},
-      };
+    if (response.status === 201) {
+      if (!save) {
+        return {
+          file: await response.arrayBuffer(),
+          link: null,
+          error: null,
+          info: {},
+        };
+      } else {
+        const jsonResponse = await response.json();
+        return { file: null, link: jsonResponse.url, error: null, info: {} };
+      }
+    } else {
+      const error = await response.json();
+      return { file: null, link: null, error: error, info: {} };
     }
   }
 }
-
