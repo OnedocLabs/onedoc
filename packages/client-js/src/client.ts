@@ -10,6 +10,8 @@ export interface PathBuffer {
   content: Buffer;
 }
 
+type AssetOrPathBuffer = Asset | PathBuffer;
+
 export interface ExternalLink {
   href: string;
 }
@@ -17,7 +19,7 @@ export interface DocumentInput {
   html: string;
   title?: string;
   test?: boolean;
-  assets?: Asset[] | PathBuffer[];
+  assets?: AssetOrPathBuffer[];
   save?: boolean;
   /**
    * Number of seconds to cache the file in the CDN for.
@@ -56,7 +58,7 @@ export class Onedoc {
   }
 
   async render(document: DocumentInput): Promise<any> {
-    const assets: Asset[] = document.assets ?? [];
+    const assets: AssetOrPathBuffer[] = document.assets ?? [];
     assets.push({ path: "/index.html", content: document.html });
 
     const test: boolean = document.test ?? true;
